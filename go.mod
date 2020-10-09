@@ -1,5 +1,7 @@
 module go.stackify.com/apm
 
+replace bitbucket.org/stackify/stackify-go-apm => /go.stackify.com/apm
+
 go 1.14
 
 require (
