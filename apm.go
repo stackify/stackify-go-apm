@@ -9,7 +9,6 @@ import (
 	"bitbucket.org/stackify/stackify-go-apm/trace"
 	"bitbucket.org/stackify/stackify-go-apm/transport"
 
-	"go.opentelemetry.io/otel/api/baggage"
 	"go.opentelemetry.io/otel/api/global"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 )
@@ -53,7 +52,6 @@ func NewStackifyAPM(opts ...config.ConfigOptions) (*StackifyAPM, error) {
 
 	// create context
 	ctx := context.Background()
-	ctx = baggage.NewContext(ctx)
 
 	// initialize StackifyAPM
 	stackifyAPM := StackifyAPM{
