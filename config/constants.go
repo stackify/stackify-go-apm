@@ -1,7 +1,7 @@
 package config
 
 import (
-	apitrace "go.opentelemetry.io/otel/api/trace"
+	otel "go.opentelemetry.io/otel"
 )
 
 const (
@@ -9,5 +9,5 @@ const (
 )
 
 var (
-	InvalidSpanId apitrace.SpanID = apitrace.SpanID{}
+	InvalidSpanId otel.SpanID = otel.SpanID{}
 )

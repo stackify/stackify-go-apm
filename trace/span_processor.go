@@ -6,13 +6,14 @@ import (
 	"sync"
 	"time"
 
+	otel "go.opentelemetry.io/otel"
+
 	"go.opentelemetry.io/otel/api/global"
-	"go.opentelemetry.io/otel/api/trace"
 	export "go.opentelemetry.io/otel/sdk/export/trace"
 )
 
 var (
-	invalidTraceID trace.ID
+	invalidTraceID otel.TraceID
 )
 
 const (
@@ -21,11 +22,11 @@ const (
 
 type StackifySpanProcessor struct {
 	e                    *StackifySpanExporter
-	traces               map[trace.ID][]*export.SpanData
-	traces_started_count map[trace.ID]int
-	traces_ended_count   map[trace.ID]int
-	trace_ids_to_export  []trace.ID
-	queue                chan trace.ID
+	traces               map[otel.TraceID][]*export.SpanData
+	traces_started_count map[otel.TraceID]int
+	traces_ended_count   map[otel.TraceID]int
+	trace_ids_to_export  []otel.TraceID
+	queue                chan otel.TraceID
 	queueMutex           sync.Mutex
 	timer                *time.Timer
 	stopWait             sync.WaitGroup
@@ -36,12 +37,12 @@ type StackifySpanProcessor struct {
 func NewStackifySpanProcessor(exporter *StackifySpanExporter) *StackifySpanProcessor {
 	ssp := &StackifySpanProcessor{
 		e:                    exporter,
-		traces:               make(map[trace.ID][]*export.SpanData),
-		traces_started_count: make(map[trace.ID]int),
-		traces_ended_count:   make(map[trace.ID]int),
-		trace_ids_to_export:  []trace.ID{},
+		traces:               make(map[otel.TraceID][]*export.SpanData),
+		traces_started_count: make(map[otel.TraceID]int),
+		traces_ended_count:   make(map[otel.TraceID]int),
+		trace_ids_to_export:  []otel.TraceID{},
 		timer:                time.NewTimer(DefaultTimeout),
-		queue:                make(chan trace.ID, 100),
+		queue:                make(chan otel.TraceID, 100),
 	}
 
 	ssp.stopWait.Add(1)
@@ -133,7 +134,7 @@ func (ssp *StackifySpanProcessor) exportSpans() {
 	defer ssp.queueMutex.Unlock()
 
 	for len(ssp.trace_ids_to_export) > 0 {
-		var trace_id trace.ID
+		var trace_id otel.TraceID
 		trace_id, ssp.trace_ids_to_export = ssp.trace_ids_to_export[0], ssp.trace_ids_to_export[1:]
 		trace := ssp.traces[trace_id]
 
@@ -149,7 +150,7 @@ func (ssp *StackifySpanProcessor) exportSpans() {
 }
 
 // enqueue method enqueue finished traces.
-func (ssp *StackifySpanProcessor) enqueue(trace_id trace.ID) {
+func (ssp *StackifySpanProcessor) enqueue(trace_id otel.TraceID) {
 	defer func() {
 		x := recover()
 		switch err := x.(type) {
@@ -167,6 +168,6 @@ func (ssp *StackifySpanProcessor) enqueue(trace_id trace.ID) {
 }
 
 // isTraceExportable method validates in trace is finished or not.
-func (ssp *StackifySpanProcessor) isTraceExportable(trace_id trace.ID) bool {
+func (ssp *StackifySpanProcessor) isTraceExportable(trace_id otel.TraceID) bool {
 	return ssp.traces_started_count[trace_id]-ssp.traces_ended_count[trace_id] <= 0
 }
