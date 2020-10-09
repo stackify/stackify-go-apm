@@ -8,8 +8,8 @@ import (
 	"sync"
 	"time"
 
-	"go.stackify.com/apm/config"
-	"go.stackify.com/apm/trace/span"
+	"bitbucket.org/stackify/stackify-go-apm/config"
+	"bitbucket.org/stackify/stackify-go-apm/trace/span"
 )
 
 const (

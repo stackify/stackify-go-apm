@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"time"
 
-	"go.stackify.com/apm/config"
-	"go.stackify.com/apm/trace"
-	"go.stackify.com/apm/transport"
+	"bitbucket.org/stackify/stackify-go-apm/config"
+	"bitbucket.org/stackify/stackify-go-apm/trace"
+	"bitbucket.org/stackify/stackify-go-apm/transport"
 
 	"go.opentelemetry.io/otel/api/baggage"
 	"go.opentelemetry.io/otel/api/global"
