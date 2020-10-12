@@ -1,8 +1,8 @@
 package span
 
 import (
-	"bitbucket.org/stackify/stackify-go-apm/config"
-	"bitbucket.org/stackify/stackify-go-apm/utils"
+	"go.stackifyapm.com/apm/config"
+	"go.stackifyapm.com/apm/utils"
 
 	export "go.opentelemetry.io/otel/sdk/export/trace"
 )

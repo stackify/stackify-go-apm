@@ -3,10 +3,10 @@ package trace
 import (
 	"context"
 
-	"bitbucket.org/stackify/stackify-go-apm/config"
-	"bitbucket.org/stackify/stackify-go-apm/trace/span"
-	"bitbucket.org/stackify/stackify-go-apm/transport"
-	"bitbucket.org/stackify/stackify-go-apm/utils"
+	"go.stackifyapm.com/apm/config"
+	"go.stackifyapm.com/apm/trace/span"
+	"go.stackifyapm.com/apm/transport"
+	"go.stackifyapm.com/apm/utils"
 
 	export "go.opentelemetry.io/otel/sdk/export/trace"
 )

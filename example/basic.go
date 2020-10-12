@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"log"
 
-	apm "bitbucket.org/stackify/stackify-go-apm"
-	"bitbucket.org/stackify/stackify-go-apm/config"
-	"bitbucket.org/stackify/stackify-go-apm/trace"
+	"go.stackifyapm.com/apm"
+	"go.stackifyapm.com/apm/config"
+	"go.stackifyapm.com/apm/trace"
 )
 
 var (

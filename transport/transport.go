@@ -1,8 +1,8 @@
 package transport
 
 import (
-	"bitbucket.org/stackify/stackify-go-apm/config"
-	"bitbucket.org/stackify/stackify-go-apm/trace/span"
+	"go.stackifyapm.com/apm/config"
+	"go.stackifyapm.com/apm/trace/span"
 )
 
 type Transport interface {
