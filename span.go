@@ -1,9 +1,6 @@
-package span
+package apm
 
 import (
-	"go.stackifyapm.com/apm/config"
-	"go.stackifyapm.com/apm/utils"
-
 	export "go.opentelemetry.io/otel/sdk/export/trace"
 )
 
@@ -18,21 +15,21 @@ type StackifySpan struct {
 	// Exceptions
 }
 
-func NewSpan(c *config.Config, sd *export.SpanData) StackifySpan {
+func NewSpan(c *Config, sd *export.SpanData) StackifySpan {
 	sspan := StackifySpan{
-		Id:       utils.SpanIdToString(sd.SpanContext.SpanID[:]),
-		ParentId: utils.SpanIdToString(sd.ParentSpanID[:]),
+		Id:       SpanIdToString(sd.SpanContext.SpanID[:]),
+		ParentId: SpanIdToString(sd.ParentSpanID[:]),
 		Call:     sd.Name,
-		ReqBegin: utils.TimeToTimestamp(sd.StartTime),
-		ReqEnd:   utils.TimeToTimestamp(sd.EndTime),
+		ReqBegin: TimeToTimestamp(sd.StartTime),
+		ReqEnd:   TimeToTimestamp(sd.EndTime),
 		Props:    make(map[string]string),
 		Stacks:   []*StackifySpan{},
 	}
 
-	if sd.ParentSpanID == config.InvalidSpanId {
+	if sd.ParentSpanID == InvalidSpanId {
 		sspan.Props["PROFILER_VERSION"] = "v3"
 		sspan.Props["CATEGORY"] = "Go"
-		sspan.Props["TRACE_ID"] = utils.TranceIdToUUID(sd.SpanContext.TraceID[:])
+		sspan.Props["TRACE_ID"] = TranceIdToUUID(sd.SpanContext.TraceID[:])
 		sspan.Props["TRACE_SOURCE"] = "GO"
 		sspan.Props["TRACE_TARGET"] = "RETRACE"
 		sspan.Props["TRACE_VERSION"] = "2.0"
