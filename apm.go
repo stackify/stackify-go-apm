@@ -5,21 +5,17 @@ import (
 	"fmt"
 	"time"
 
-	"go.stackifyapm.com/apm/config"
-	"go.stackifyapm.com/apm/trace"
-	"go.stackifyapm.com/apm/transport"
-
 	"go.opentelemetry.io/otel/api/global"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 )
 
 type StackifyAPM struct {
-	config        *config.Config
-	transport     *transport.Transport
-	spanExporter  *trace.StackifySpanExporter
-	spanProcessor *trace.StackifySpanProcessor
+	config        *Config
+	transport     *Transport
+	spanExporter  *StackifySpanExporter
+	spanProcessor *StackifySpanProcessor
 	traceProvider *sdktrace.TracerProvider
-	Tracer        trace.Tracer
+	Tracer        Tracer
 	Context       context.Context
 }
 
@@ -28,20 +24,20 @@ func (sapm *StackifyAPM) Shutdown() {
 	sapm.spanProcessor.Shutdown()
 }
 
-func NewStackifyAPM(opts ...config.ConfigOptions) (*StackifyAPM, error) {
+func NewStackifyAPM(opts ...ConfigOptions) (*StackifyAPM, error) {
 	fmt.Println("APM Starting...")
 
 	// initialize Config
-	c := config.NewConfig(opts...)
+	c := NewConfig(opts...)
 
 	// initialize Transport
-	t := transport.NewTransport(c)
+	t := NewTransport(c)
 
 	// initialize stackify span exporter
-	sse := trace.NewStackifySpanExporter(c, &t)
+	sse := NewStackifySpanExporter(c, &t)
 
 	// initialize stackify span processor
-	ssp := trace.NewStackifySpanProcessor(sse)
+	ssp := NewStackifySpanProcessor(sse)
 
 	// initialize OT tracer provider
 	tp := sdktrace.NewTracerProvider(sdktrace.WithSpanProcessor(ssp))

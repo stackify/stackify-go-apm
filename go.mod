@@ -1,4 +1,4 @@
-module go.stackifyapm.com/apm // import go.stackifyapm.com/apm
+module go.stackify.com // import go.stackify.com
 
 go 1.15
 
