@@ -1,19 +1,14 @@
-package trace
+package apm
 
 import (
 	"context"
-
-	"go.stackifyapm.com/apm/config"
-	"go.stackifyapm.com/apm/trace/span"
-	"go.stackifyapm.com/apm/transport"
-	"go.stackifyapm.com/apm/utils"
 
 	export "go.opentelemetry.io/otel/sdk/export/trace"
 )
 
 type StackifySpanExporter struct {
-	c *config.Config
-	t transport.Transport
+	c *Config
+	t Transport
 }
 
 // ExportSpans method convert spans into stackify span format.
@@ -33,19 +28,19 @@ func (ssp *StackifySpanExporter) Shutdown(context.Context) error {
 }
 
 // toStackifyTrace method converts spans to stackify trace format.
-func (ssp *StackifySpanExporter) toStackifyTrace(sd []*export.SpanData) (*span.StackifySpan, error) {
-	stackifySpans := []*span.StackifySpan{}
-	stackifySpansMap := make(map[string]*span.StackifySpan)
-	stackifySpan := &span.StackifySpan{}
+func (ssp *StackifySpanExporter) toStackifyTrace(sd []*export.SpanData) (*StackifySpan, error) {
+	stackifySpans := []*StackifySpan{}
+	stackifySpansMap := make(map[string]*StackifySpan)
+	stackifySpan := &StackifySpan{}
 
 	for _, s := range sd {
-		stackifySpan := span.NewSpan(ssp.c, s)
+		stackifySpan := NewSpan(ssp.c, s)
 		stackifySpans = append(stackifySpans, &stackifySpan)
-		stackifySpansMap[utils.SpanIdToString(s.SpanContext.SpanID[:])] = &stackifySpan
+		stackifySpansMap[SpanIdToString(s.SpanContext.SpanID[:])] = &stackifySpan
 	}
 
 	for _, s := range stackifySpans {
-		if s.ParentId != s.Id && s.ParentId != utils.SpanIdToString(config.InvalidSpanId[:]) {
+		if s.ParentId != s.Id && s.ParentId != SpanIdToString(InvalidSpanId[:]) {
 			stackifySpansMap[s.ParentId].Stacks = append(stackifySpansMap[s.ParentId].Stacks, stackifySpansMap[s.Id])
 		} else {
 			stackifySpan = s
@@ -55,7 +50,7 @@ func (ssp *StackifySpanExporter) toStackifyTrace(sd []*export.SpanData) (*span.S
 }
 
 // NewStackifySpanExporter function creates a StackifySpanExporter.
-func NewStackifySpanExporter(c *config.Config, t *transport.Transport) *StackifySpanExporter {
+func NewStackifySpanExporter(c *Config, t *Transport) *StackifySpanExporter {
 	return &StackifySpanExporter{
 		c: c,
 		t: *t,
