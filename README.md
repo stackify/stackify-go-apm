@@ -1,29 +1,68 @@
-# README #
+# Stackify Go APM
 
-This README would normally document whatever steps are necessary to get your application up and running.
+## Installation Guide
 
-### What is this repository for? ###
+### Standalone setup
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+1. Install **Stackify Linux Agent**.
 
-### How do I get set up? ###
+2. Check that your setup meets our system requirements.
+    - Go Version 1.15
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
+3. Install the Stackify Go APM agent using `go get`
+    - Add stackify go apm to your `go.mod`
 
-### Contribution guidelines ###
+        ```
+        require (
+            go.stackify.com/apm vx.x.x
+            ...
+        )
+        ```
 
-* Writing tests
-* Code review
-* Other guidelines
+    - Install stackify go apm
 
-### Who do I talk to? ###
+        ```
+        $ go get go.stackify.com/apm
+        ```
 
-* Repo owner or admin
-* Other community or team contact
+4. Update and insert the apm settings to your application.
+
+    ```
+    package main
+
+    import (
+        "context"
+        "log"
+
+        "go.stackify.com/apm"
+    )
+
+    func main() {
+        stackifyAPM, err := apm.NewStackifyAPM()
+        if err != nil {
+            log.Fatalf("failed to initialize stackifyapm: %v", err)
+        }
+        defer stackifyAPM.Shutdown()
+
+        err = func(ctx context.Context) error {
+            var span apm.Span
+            ctx, span = stackifyAPM.Tracer.Start(ctx, "span1")
+            defer span.End()
+
+            return nil
+        }(stackifyAPM.Context)
+        if err != nil {
+            panic(err)
+        }
+
+    }
+    ```
+
+5. Customize **Application Name** and **Environment** configuration.
+
+    ```
+    stackifyAPM, err := apm.NewStackifyAPM(
+        apm.WithApplicationName("Go Application"),
+        apm.WithEnvironmentName("Production"),
+    )
+    ```

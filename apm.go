@@ -1,4 +1,4 @@
-package apm
+package apm // import "go.stackify.com/apm"
 
 import (
 	"context"
