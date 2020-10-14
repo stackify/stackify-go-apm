@@ -6,19 +6,21 @@ import (
 	"log"
 
 	"go.stackify.com/apm"
+	"go.stackify.com/apm/config"
+	"go.stackify.com/apm/trace"
 )
 
 var (
-	customKey = apm.Key("stackify.custom")
+	customKey = trace.Key("stackify.custom")
 )
 
 func main() {
 	fmt.Println("Starting simple application.")
 
 	stackifyAPM, err := apm.NewStackifyAPM(
-		apm.WithApplicationName("Jayr GOLANG 11:22"),
-		apm.WithEnvironmentName("Test"),
-		apm.WithDebug(true),
+		config.WithApplicationName("Jayr GOLANG 11:22"),
+		config.WithEnvironmentName("Test"),
+		config.WithDebug(true),
 	)
 	defer stackifyAPM.Shutdown()
 
@@ -32,14 +34,14 @@ func main() {
 	fmt.Println("Application done.")
 }
 
-func doSimpleSpan(ctx context.Context, tracer apm.Tracer) {
+func doSimpleSpan(ctx context.Context, tracer trace.Tracer) {
 	var err error = nil
 	err = func(ctx context.Context) error {
-		var span apm.Span
+		var span trace.Span
 		ctx, span = tracer.Start(ctx, "custom.GoSampleClass.MethodCall")
 		defer span.End()
 		err = func(ctx context.Context) error {
-			var span apm.Span
+			var span trace.Span
 			ctx, span = tracer.Start(ctx, "custom.GoSampleClass2.MethodCall2")
 			defer span.End()
 
@@ -56,25 +58,25 @@ func doSimpleSpan(ctx context.Context, tracer apm.Tracer) {
 	}
 }
 
-func doComplexSpan(ctx context.Context, tracer apm.Tracer) {
+func doComplexSpan(ctx context.Context, tracer trace.Tracer) {
 	var err error = nil
 	err = func(ctx context.Context) error {
-		var span apm.Span
+		var span trace.Span
 		ctx, span = tracer.Start(ctx, "span1-0-0-0")
 		defer span.End()
 
 		err = func(ctx context.Context) error {
-			var span apm.Span
+			var span trace.Span
 			ctx, span = tracer.Start(ctx, "span1-1-0-0")
 			defer span.End()
 
 			err = func(ctx context.Context) error {
-				var span apm.Span
+				var span trace.Span
 				ctx, span = tracer.Start(ctx, "span1-1-1-0")
 				defer span.End()
 
 				err = func(ctx context.Context) error {
-					var span apm.Span
+					var span trace.Span
 					ctx, span = tracer.Start(ctx, "span1-1-1-1")
 					defer span.End()
 
@@ -97,7 +99,7 @@ func doComplexSpan(ctx context.Context, tracer apm.Tracer) {
 		}
 
 		err = func(ctx context.Context) error {
-			var span apm.Span
+			var span trace.Span
 			ctx, span = tracer.Start(ctx, "span1-2-0-0")
 			defer span.End()
 
@@ -108,11 +110,11 @@ func doComplexSpan(ctx context.Context, tracer apm.Tracer) {
 		}
 
 		err = func(ctx context.Context) error {
-			var span apm.Span
+			var span trace.Span
 			ctx, span = tracer.Start(ctx, "span1-3-0-0")
 			defer span.End()
 			err = func(ctx context.Context) error {
-				var span apm.Span
+				var span trace.Span
 				ctx, span = tracer.Start(ctx, "span1-3-1-0")
 				defer span.End()
 

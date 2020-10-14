@@ -1,4 +1,4 @@
-package apm
+package transport
 
 import (
 	"encoding/json"
@@ -7,6 +7,9 @@ import (
 	"os"
 	"sync"
 	"time"
+
+	"go.stackify.com/apm/config"
+	"go.stackify.com/apm/trace/span"
 )
 
 const (
@@ -92,7 +95,7 @@ func newStackifyIncrementalLogger(fileNameFormat string, threshold int64) *stack
 type defaultTransport struct {
 	*stackifyIncrementalLogger
 
-	config          *Config
+	config          *config.Config
 	fileNameCounter int
 	log             *log.Logger
 	file            *os.File
@@ -100,7 +103,7 @@ type defaultTransport struct {
 	mutex           sync.RWMutex
 }
 
-func (dt *defaultTransport) HandleTrace(stackifySpan *StackifySpan) {
+func (dt *defaultTransport) HandleTrace(stackifySpan *span.StackifySpan) {
 	fmt.Println(">>>>> Logging trace: ", stackifySpan.Id)
 	stackifySpanJSON, _ := json.Marshal(stackifySpan)
 	dt.println(string(stackifySpanJSON))
@@ -111,7 +114,7 @@ func (dt *defaultTransport) SendAll() {
 	// nothing to flush for default transport
 }
 
-func newDefaultTransport(c *Config) Transport {
+func newDefaultTransport(c *config.Config) Transport {
 	fileNameFormat := fmt.Sprintf("%s%s#%s-", c.LogPath, c.HostName, c.ProcessID) + "%d.log"
 
 	return &defaultTransport{

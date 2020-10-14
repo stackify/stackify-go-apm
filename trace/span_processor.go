@@ -1,4 +1,4 @@
-package apm
+package trace
 
 import (
 	"context"
