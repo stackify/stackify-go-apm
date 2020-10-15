@@ -9,10 +9,18 @@ import (
 	"go.opentelemetry.io/otel/api/global"
 	"go.opentelemetry.io/otel/api/trace"
 	export "go.opentelemetry.io/otel/sdk/export/trace"
+	"go.stackify.com/apm/trace/span"
 )
 
 var (
 	invalidTraceID trace.ID
+	validHTTPSpan  = map[string]bool{
+		"GET":    true,
+		"POST":   true,
+		"PUT":    true,
+		"DELETE": true,
+		"PATCH":  true,
+	}
 )
 
 const (
@@ -55,6 +63,9 @@ func NewStackifySpanProcessor(exporter *StackifySpanExporter) *StackifySpanProce
 
 // OnStart method counts how many started spans from a specific trace.
 func (ssp *StackifySpanProcessor) OnStart(sd *export.SpanData) {
+	if !ssp.isSpanValid(sd) {
+		return
+	}
 	ssp.queueMutex.Lock()
 	defer ssp.queueMutex.Unlock()
 
@@ -63,12 +74,16 @@ func (ssp *StackifySpanProcessor) OnStart(sd *export.SpanData) {
 
 // OnEnd method appends spans into store and enqueue spans if trace is finished.
 func (ssp *StackifySpanProcessor) OnEnd(sd *export.SpanData) {
+	if !ssp.isSpanValid(sd) {
+		return
+	}
 	ssp.queueMutex.Lock()
 	defer ssp.queueMutex.Unlock()
 
 	trace_id := sd.SpanContext.TraceID
 	ssp.traces[sd.SpanContext.TraceID] = append(ssp.traces[sd.SpanContext.TraceID], sd)
 	ssp.traces_ended_count[trace_id] += 1
+
 	if ssp.isTraceExportable(trace_id) {
 		ssp.enqueue(trace_id)
 	}
@@ -169,4 +184,9 @@ func (ssp *StackifySpanProcessor) enqueue(trace_id trace.ID) {
 // isTraceExportable method validates in trace is finished or not.
 func (ssp *StackifySpanProcessor) isTraceExportable(trace_id trace.ID) bool {
 	return ssp.traces_started_count[trace_id]-ssp.traces_ended_count[trace_id] <= 0
+}
+
+func (ssp *StackifySpanProcessor) isSpanValid(sd *export.SpanData) bool {
+	_, ok := validHTTPSpan[sd.Name]
+	return ok || sd.ParentSpanID == span.InvalidSpanId
 }
