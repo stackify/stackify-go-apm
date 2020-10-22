@@ -11,19 +11,8 @@ import (
 
 var (
 	InvalidSpanId       apitrace.SpanID = apitrace.SpanID{}
-	validSpanAttributes                 = map[string]string{
-		"http.method":      "METHOD",
-		"http.url":         "URL",
-		"http.status_code": "STATUS",
-	}
-	instrumentationType = map[string]string{
+	instrumentationType                 = map[string]string{
 		"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp": "net.http",
-	}
-	categoryType = map[string]string{
-		"GET": "Web External",
-	}
-	subCategoryType = map[string]string{
-		"GET": "Execute",
 	}
 )
 
@@ -40,10 +29,16 @@ type StackifySpan struct {
 
 func NewSpan(c *config.Config, sd *export.SpanData) StackifySpan {
 	var spanName string = sd.Name
+	var spanAttributes = map[string]string{}
+	for _, attribute := range sd.Attributes {
+		spanAttributes[string(attribute.Key)] = fmt.Sprintf("%v", attribute.Value.AsInterface())
+	}
+
 	instrumentation, ok := instrumentationType[sd.InstrumentationLibrary.Name]
 	if ok {
 		spanName = fmt.Sprintf("%s.%s", instrumentation, sd.Name)
 	}
+
 	sspan := StackifySpan{
 		Id:       utils.SpanIdToString(sd.SpanContext.SpanID[:]),
 		ParentId: utils.SpanIdToString(sd.ParentSpanID[:]),
@@ -55,13 +50,20 @@ func NewSpan(c *config.Config, sd *export.SpanData) StackifySpan {
 	}
 
 	if sd.ParentSpanID == InvalidSpanId {
-		sspan.Props["PROFILER_VERSION"] = "v3"
+		var tracetype string
+		if sd.SpanKind.String() == "server" {
+			tracetype = "WEBAPP"
+		} else {
+			tracetype = "TASK"
+		}
+
+		sspan.Props["PROFILER_VERSION"] = "prototype"
 		sspan.Props["CATEGORY"] = "Go"
 		sspan.Props["TRACE_ID"] = utils.TranceIdToUUID(sd.SpanContext.TraceID[:])
 		sspan.Props["TRACE_SOURCE"] = "GO"
 		sspan.Props["TRACE_TARGET"] = "RETRACE"
 		sspan.Props["TRACE_VERSION"] = "2.0"
-		sspan.Props["TRACETYPE"] = "TASK"
+		sspan.Props["TRACETYPE"] = tracetype
 		sspan.Props["HOST_NAME"] = c.HostName
 		sspan.Props["OS_TYPE"] = c.OSType
 		sspan.Props["PROCESS_ID"] = c.ProcessID
@@ -69,21 +71,37 @@ func NewSpan(c *config.Config, sd *export.SpanData) StackifySpan {
 		sspan.Props["APPLICATION_FILESYSTEM_PATH"] = c.BaseDIR
 		sspan.Props["APPLICATION_NAME"] = c.ApplicationName
 		sspan.Props["APPLICATION_ENV"] = c.EnvironmentName
-		sspan.Props["REPORTING_URL"] = sspan.Call
+		SetSpanPropsIfAvailable(&sspan, "REPORTING_URL", spanAttributes, "http.target", sspan.Call)
 	} else {
-		category, ok := categoryType[sd.Name]
-		if !ok {
-			category = "Go"
-		}
-		sspan.Props["CATEGORY"] = category
-		sspan.Props["SUBCATEGORY"] = subCategoryType[sd.Name]
-
-		for _, attribute := range sd.Attributes {
-			key, ok := validSpanAttributes[string(attribute.Key)]
-			if ok {
-				sspan.Props[key] = fmt.Sprintf("%v", attribute.Value.AsInterface())
-			}
-		}
+		sspan.Props["CATEGORY"] = "Go"
 	}
+
+	if IsHTTPSpan(spanAttributes) {
+		sspan.Props["CATEGORY"] = "Web External"
+		sspan.Props["SUBCATEGORY"] = "Execute"
+		sspan.Props["COMPONENT_CATEGORY"] = "Web External"
+		sspan.Props["COMPONENT_DETAIL"] = "Execute"
+		SetSpanPropsIfAvailable(&sspan, "METHOD", spanAttributes, "http.method", "")
+		SetSpanPropsIfAvailable(&sspan, "STATUS", spanAttributes, "http.status_code", "")
+		SetSpanPropsIfAvailable(&sspan, "URL", spanAttributes, "http.url", "")
+	}
+
 	return sspan
+}
+
+func SetSpanPropsIfAvailable(sspan *StackifySpan, sspanKey string, attributes map[string]string, attributeKey string, defaultValue string) {
+	value, ok := attributes[attributeKey]
+	if ok {
+		sspan.Props[sspanKey] = value
+	} else if len(defaultValue) > 0 {
+		sspan.Props[sspanKey] = defaultValue
+	}
+}
+
+func IsHTTPSpan(spanAtrributes map[string]string) bool {
+	_, ok := spanAtrributes["http.method"]
+	if ok {
+		return true
+	}
+	return false
 }
