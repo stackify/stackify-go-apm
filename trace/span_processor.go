@@ -14,12 +14,13 @@ import (
 
 var (
 	invalidTraceID trace.ID
-	validHTTPSpan  = map[string]bool{
-		"GET":    true,
-		"POST":   true,
-		"PUT":    true,
-		"DELETE": true,
-		"PATCH":  true,
+	validSpan      = map[string]bool{
+		"GET":               true,
+		"POST":              true,
+		"PUT":               true,
+		"DELETE":            true,
+		"PATCH":             true,
+		"gin.renderer.html": true,
 	}
 )
 
@@ -187,6 +188,6 @@ func (ssp *StackifySpanProcessor) isTraceExportable(trace_id trace.ID) bool {
 }
 
 func (ssp *StackifySpanProcessor) isSpanValid(sd *export.SpanData) bool {
-	_, ok := validHTTPSpan[sd.Name]
+	_, ok := validSpan[sd.Name]
 	return ok || sd.ParentSpanID == span.InvalidSpanId
 }

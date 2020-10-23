@@ -86,6 +86,13 @@ func NewSpan(c *config.Config, sd *export.SpanData) StackifySpan {
 		SetSpanPropsIfAvailable(&sspan, "URL", spanAttributes, "http.url", "")
 	}
 
+	if IsTemplateSpan(spanAttributes) {
+		sspan.Props["CATEGORY"] = "Template"
+		sspan.Props["SUBCATEGORY"] = "Render"
+		sspan.Props["COMPONENT_CATEGORY"] = "Template"
+		sspan.Props["COMPONENT_DETAIL"] = "Template"
+	}
+
 	return sspan
 }
 
@@ -99,7 +106,15 @@ func SetSpanPropsIfAvailable(sspan *StackifySpan, sspanKey string, attributes ma
 }
 
 func IsHTTPSpan(spanAtrributes map[string]string) bool {
-	_, ok := spanAtrributes["http.method"]
+	return isAttributePresent("http.method", spanAtrributes)
+}
+
+func IsTemplateSpan(spanAtrributes map[string]string) bool {
+	return isAttributePresent("go.template", spanAtrributes)
+}
+
+func isAttributePresent(attrName string, spanAtrributes map[string]string) bool {
+	_, ok := spanAtrributes[attrName]
 	if ok {
 		return true
 	}
