@@ -15,7 +15,7 @@ import (
 
 func initStackifyTrace() (*apm.StackifyAPM, error) {
 	return apm.NewStackifyAPM(
-		config.WithApplicationName("Jayr GOLANG 11:22"),
+		config.WithApplicationName("Go Application"),
 		config.WithEnvironmentName("Test"),
 		config.WithDebug(true),
 	)
