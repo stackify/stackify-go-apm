@@ -15,12 +15,13 @@ import (
 var (
 	invalidTraceID trace.ID
 	validSpan      = map[string]bool{
-		"GET":               true,
-		"POST":              true,
-		"PUT":               true,
-		"DELETE":            true,
-		"PATCH":             true,
-		"gin.renderer.html": true,
+		"GET":                   true,
+		"POST":                  true,
+		"PUT":                   true,
+		"DELETE":                true,
+		"PATCH":                 true,
+		"gin.renderer.html":     true,
+		"beego.render.template": true,
 	}
 )
 
@@ -187,6 +188,7 @@ func (ssp *StackifySpanProcessor) isTraceExportable(trace_id trace.ID) bool {
 	return ssp.traces_started_count[trace_id]-ssp.traces_ended_count[trace_id] <= 0
 }
 
+// isSpanValid method checks if span is a valid stackify span.
 func (ssp *StackifySpanProcessor) isSpanValid(sd *export.SpanData) bool {
 	_, ok := validSpan[sd.Name]
 	return ok || sd.ParentSpanID == span.InvalidSpanId

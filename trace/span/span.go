@@ -2,6 +2,7 @@ package span
 
 import (
 	"fmt"
+	"strings"
 
 	apitrace "go.opentelemetry.io/otel/api/trace"
 	export "go.opentelemetry.io/otel/sdk/export/trace"
@@ -28,21 +29,15 @@ type StackifySpan struct {
 }
 
 func NewSpan(c *config.Config, sd *export.SpanData) StackifySpan {
-	var spanName string = sd.Name
 	var spanAttributes = map[string]string{}
 	for _, attribute := range sd.Attributes {
 		spanAttributes[string(attribute.Key)] = fmt.Sprintf("%v", attribute.Value.AsInterface())
 	}
 
-	instrumentation, ok := instrumentationType[sd.InstrumentationLibrary.Name]
-	if ok {
-		spanName = fmt.Sprintf("%s.%s", instrumentation, sd.Name)
-	}
-
 	sspan := StackifySpan{
 		Id:       utils.SpanIdToString(sd.SpanContext.SpanID[:]),
 		ParentId: utils.SpanIdToString(sd.ParentSpanID[:]),
-		Call:     spanName,
+		Call:     sd.Name,
 		ReqBegin: utils.TimeToTimestamp(sd.StartTime),
 		ReqEnd:   utils.TimeToTimestamp(sd.EndTime),
 		Props:    make(map[string]string),
@@ -55,6 +50,10 @@ func NewSpan(c *config.Config, sd *export.SpanData) StackifySpan {
 			tracetype = "WEBAPP"
 		} else {
 			tracetype = "TASK"
+		}
+
+		if IsHTTPSpan(spanAttributes) && !strings.HasPrefix(sspan.Call, "/") {
+			sspan.Call = spanAttributes["http.target"]
 		}
 
 		sspan.Props["PROFILER_VERSION"] = "prototype"
@@ -72,25 +71,34 @@ func NewSpan(c *config.Config, sd *export.SpanData) StackifySpan {
 		sspan.Props["APPLICATION_NAME"] = c.ApplicationName
 		sspan.Props["APPLICATION_ENV"] = c.EnvironmentName
 		SetSpanPropsIfAvailable(&sspan, "REPORTING_URL", spanAttributes, "http.target", sspan.Call)
-	} else {
-		sspan.Props["CATEGORY"] = "Go"
-	}
-
-	if IsHTTPSpan(spanAttributes) {
-		sspan.Props["CATEGORY"] = "Web External"
-		sspan.Props["SUBCATEGORY"] = "Execute"
-		sspan.Props["COMPONENT_CATEGORY"] = "Web External"
-		sspan.Props["COMPONENT_DETAIL"] = "Execute"
 		SetSpanPropsIfAvailable(&sspan, "METHOD", spanAttributes, "http.method", "")
 		SetSpanPropsIfAvailable(&sspan, "STATUS", spanAttributes, "http.status_code", "")
 		SetSpanPropsIfAvailable(&sspan, "URL", spanAttributes, "http.url", "")
-	}
+	} else {
+		sspan.Props["CATEGORY"] = "Go"
 
-	if IsTemplateSpan(spanAttributes) {
-		sspan.Props["CATEGORY"] = "Template"
-		sspan.Props["SUBCATEGORY"] = "Render"
-		sspan.Props["COMPONENT_CATEGORY"] = "Template"
-		sspan.Props["COMPONENT_DETAIL"] = "Template"
+		if IsHTTPSpan(spanAttributes) {
+			instrumentation, ok := instrumentationType[sd.InstrumentationLibrary.Name]
+			if ok {
+				spanName := fmt.Sprintf("%s.%s", instrumentation, sd.Name)
+				sspan.Call = spanName
+			}
+
+			sspan.Props["CATEGORY"] = "Web External"
+			sspan.Props["SUBCATEGORY"] = "Execute"
+			sspan.Props["COMPONENT_CATEGORY"] = "Web External"
+			sspan.Props["COMPONENT_DETAIL"] = "Execute"
+			SetSpanPropsIfAvailable(&sspan, "METHOD", spanAttributes, "http.method", "")
+			SetSpanPropsIfAvailable(&sspan, "STATUS", spanAttributes, "http.status_code", "")
+			SetSpanPropsIfAvailable(&sspan, "URL", spanAttributes, "http.url", "")
+		}
+
+		if IsTemplateSpan(spanAttributes) {
+			sspan.Props["CATEGORY"] = "Template"
+			sspan.Props["SUBCATEGORY"] = "Render"
+			sspan.Props["COMPONENT_CATEGORY"] = "Template"
+			sspan.Props["COMPONENT_DETAIL"] = "Template"
+		}
 	}
 
 	return sspan
