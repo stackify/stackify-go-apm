@@ -15,13 +15,30 @@ import (
 var (
 	invalidTraceID trace.ID
 	validSpan      = map[string]bool{
-		"GET":                   true,
-		"POST":                  true,
-		"PUT":                   true,
-		"DELETE":                true,
-		"PATCH":                 true,
+		// HTML
+		"GET":    true,
+		"POST":   true,
+		"PUT":    true,
+		"DELETE": true,
+		"PATCH":  true,
+
+		// Template
 		"gin.renderer.html":     true,
 		"beego.render.template": true,
+
+		// Memcache
+		"add":        true,
+		"cas":        true,
+		"decr":       true,
+		"delete":     true,
+		"delete_all": true,
+		"flush_all":  true,
+		"get":        true,
+		"incr":       true,
+		"ping":       true,
+		"replace":    true,
+		"set":        true,
+		"touch":      true,
 	}
 )
 

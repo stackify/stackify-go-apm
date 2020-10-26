@@ -18,7 +18,7 @@ type StackifyAPM struct {
 	transport     *transport.Transport
 	spanExporter  *trace.StackifySpanExporter
 	spanProcessor *trace.StackifySpanProcessor
-	traceProvider *sdktrace.TracerProvider
+	TraceProvider *sdktrace.TracerProvider
 	Tracer        trace.Tracer
 	Context       context.Context
 }
@@ -59,7 +59,7 @@ func NewStackifyAPM(opts ...config.ConfigOptions) (*StackifyAPM, error) {
 		transport:     &t,
 		spanExporter:  sse,
 		spanProcessor: ssp,
-		traceProvider: tp,
+		TraceProvider: tp,
 		Tracer:        tracer,
 		Context:       ctx,
 	}

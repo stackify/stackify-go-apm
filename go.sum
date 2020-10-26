@@ -19,6 +19,8 @@ github.com/beorn7/perks v1.0.0/go.mod h1:KWe93zE9D1o94FZ5RNwFwVgaQK1VOXiVxmqh+Ce
 github.com/beorn7/perks v1.0.1 h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=
 github.com/beorn7/perks v1.0.1/go.mod h1:G2ZrVWU2WbWT9wwq4/hrbKbnv/1ERSJQ0ibhJ6rlkpw=
 github.com/bradfitz/gomemcache v0.0.0-20180710155616-bc664df96737/go.mod h1:PmM6Mmwb0LSuEubjR8N7PtNe1KxZLtOUHtbeikc5h60=
+github.com/bradfitz/gomemcache v0.0.0-20190913173617-a41fca850d0b h1:L/QXpzIa3pOvUGt1D1lA5KjYhPBAN/3iWdP7xeFS9F0=
+github.com/bradfitz/gomemcache v0.0.0-20190913173617-a41fca850d0b/go.mod h1:H0wQNHz2YrLsuXOZozoeDmnHXkNCRmMW0gwFWDfEZDA=
 github.com/casbin/casbin v1.7.0/go.mod h1:c67qKN6Oum3UF5Q1+BByfFxkwKvhwW57ITjqwtzR1KE=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
 github.com/cespare/xxhash/v2 v2.1.1 h1:6MnRN8NT7+YBpUIWxHtefFZOKTAPgGjpQSxqLNn0+qY=
@@ -196,6 +198,9 @@ go.opentelemetry.io/contrib v0.13.0 h1:q34CFu5REx9Dt2ksESHC/doIjFJkEg1oV3aSwlL5J
 go.opentelemetry.io/contrib v0.13.0/go.mod h1:HzCu6ebm0ywgNxGaEfs3izyJOMP4rZnzxycyTgpI5Sg=
 go.opentelemetry.io/contrib/instrumentation/github.com/astaxie/beego/otelbeego v0.13.0 h1:QffHhvz9lHP6znOF4PsSppWa8HPBXTHVt0fhpYkkPl0=
 go.opentelemetry.io/contrib/instrumentation/github.com/astaxie/beego/otelbeego v0.13.0/go.mod h1:rgVon/rE7W2jdNA/HNewHRdiwemVaFqZdy2/nUEb+4o=
+go.opentelemetry.io/contrib/instrumentation/github.com/bradfitz/gomemcache v0.11.0 h1:j423h9gJgytkla7lJXQnciocHZ8DY6ChIGtmotDUiH8=
+go.opentelemetry.io/contrib/instrumentation/github.com/bradfitz/gomemcache/memcache/otelmemcache v0.13.0 h1:b4msVrScY3q9CjW4GgpjaU+St/C0rIzza9VjezYYAuE=
+go.opentelemetry.io/contrib/instrumentation/github.com/bradfitz/gomemcache/memcache/otelmemcache v0.13.0/go.mod h1:dd9wTQMdndShWOZ64T1aRh6nGGVRFLp3zEuPHdQn6CI=
 go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin v0.13.0 h1:kuqJ1YxAzMooElHDX5KzqyW9NLB4zWAamDF+d1p5Z8w=
 go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin v0.13.0/go.mod h1:lQTQqWUP6YaM5x6lRi2ocfLSyoJ+Dc105u4zjIU3oLs=
 go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux v0.11.0 h1:2XO53ZwlJu2orBA30KsSguXlFBmT9cYJ0fLn+gk2TXo=

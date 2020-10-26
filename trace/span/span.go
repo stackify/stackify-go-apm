@@ -13,7 +13,8 @@ import (
 var (
 	InvalidSpanId       apitrace.SpanID = apitrace.SpanID{}
 	instrumentationType                 = map[string]string{
-		"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp": "net.http",
+		"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp":                                    "net.http",
+		"go.opentelemetry.io/contrib/instrumentation/github.com/bradfitz/gomemcache/memcache/otelmemcache": "gomemcached",
 	}
 )
 
@@ -75,15 +76,14 @@ func NewSpan(c *config.Config, sd *export.SpanData) StackifySpan {
 		SetSpanPropsIfAvailable(&sspan, "STATUS", spanAttributes, "http.status_code", "")
 		SetSpanPropsIfAvailable(&sspan, "URL", spanAttributes, "http.url", "")
 	} else {
+		instrumentation, ok := instrumentationType[sd.InstrumentationLibrary.Name]
+		if ok {
+			spanName := fmt.Sprintf("%s.%s", instrumentation, sd.Name)
+			sspan.Call = spanName
+		}
 		sspan.Props["CATEGORY"] = "Go"
 
 		if IsHTTPSpan(spanAttributes) {
-			instrumentation, ok := instrumentationType[sd.InstrumentationLibrary.Name]
-			if ok {
-				spanName := fmt.Sprintf("%s.%s", instrumentation, sd.Name)
-				sspan.Call = spanName
-			}
-
 			sspan.Props["CATEGORY"] = "Web External"
 			sspan.Props["SUBCATEGORY"] = "Execute"
 			sspan.Props["COMPONENT_CATEGORY"] = "Web External"
@@ -99,6 +99,15 @@ func NewSpan(c *config.Config, sd *export.SpanData) StackifySpan {
 			sspan.Props["COMPONENT_CATEGORY"] = "Template"
 			sspan.Props["COMPONENT_DETAIL"] = "Template"
 		}
+
+		if IsMemcachedSpan(spanAttributes) {
+			sspan.Props["CATEGORY"] = "Cache"
+			sspan.Props["SUBCATEGORY"] = "Execute"
+			sspan.Props["COMPONENT_CATEGORY"] = "Cache"
+			sspan.Props["COMPONENT_DETAIL"] = "Execute"
+			SetSpanPropsIfAvailable(&sspan, "OPERATION", spanAttributes, "db.operation", "")
+			SetSpanPropsIfAvailable(&sspan, "CACHEKEY", spanAttributes, "db.memcached.item", "")
+		}
 	}
 
 	return sspan
@@ -113,18 +122,30 @@ func SetSpanPropsIfAvailable(sspan *StackifySpan, sspanKey string, attributes ma
 	}
 }
 
-func IsHTTPSpan(spanAtrributes map[string]string) bool {
-	return isAttributePresent("http.method", spanAtrributes)
+func IsHTTPSpan(spanAttributes map[string]string) bool {
+	return isAttributePresent("http.method", spanAttributes) && isAttributePresent("http.status_code", spanAttributes)
 }
 
-func IsTemplateSpan(spanAtrributes map[string]string) bool {
-	return isAttributePresent("go.template", spanAtrributes)
+func IsTemplateSpan(spanAttributes map[string]string) bool {
+	return isAttributePresent("go.template", spanAttributes)
 }
 
-func isAttributePresent(attrName string, spanAtrributes map[string]string) bool {
-	_, ok := spanAtrributes[attrName]
+func IsMemcachedSpan(spanAttributes map[string]string) bool {
+	return isAttributePresent("db.operation", spanAttributes) && isAttributeValueEqualTo("db.system", spanAttributes, "memcached")
+}
+
+func isAttributePresent(attrName string, spanAttributes map[string]string) bool {
+	_, ok := spanAttributes[attrName]
 	if ok {
 		return true
+	}
+	return false
+}
+
+func isAttributeValueEqualTo(attrName string, spanAttributes map[string]string, value string) bool {
+	val, ok := spanAttributes[attrName]
+	if ok {
+		return val == value
 	}
 	return false
 }
