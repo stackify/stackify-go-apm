@@ -10,11 +10,18 @@ import (
 	"go.stackify.com/apm/utils"
 )
 
+const (
+	Otelhttp     = "go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	Otelmemcache = "go.opentelemetry.io/contrib/instrumentation/github.com/bradfitz/gomemcache/memcache/otelmemcache"
+	Otelgocql    = "go.opentelemetry.io/contrib/instrumentation/github.com/gocql/gocql/otelgocql"
+)
+
 var (
 	InvalidSpanId       apitrace.SpanID = apitrace.SpanID{}
 	instrumentationType                 = map[string]string{
-		"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp":                                    "net.http",
-		"go.opentelemetry.io/contrib/instrumentation/github.com/bradfitz/gomemcache/memcache/otelmemcache": "gomemcached",
+		Otelhttp:     "net.http",
+		Otelmemcache: "gomemcached",
+		Otelgocql:    "gocql",
 	}
 )
 
@@ -108,6 +115,28 @@ func NewSpan(c *config.Config, sd *export.SpanData) StackifySpan {
 			SetSpanPropsIfAvailable(&sspan, "OPERATION", spanAttributes, "db.operation", "")
 			SetSpanPropsIfAvailable(&sspan, "CACHEKEY", spanAttributes, "db.memcached.item", "")
 		}
+
+		if IsCasandraSpan(spanAttributes) {
+			subcategory := "Execute"
+			if isAttributeValueEqualTo("db.operation", spanAttributes, "db.cassandra.connect") {
+				subcategory = "Connect"
+			}
+
+			operation := ""
+			if isAttributePresent("db.operation", spanAttributes) {
+				operation, _ = spanAttributes["db.operation"]
+			} else if isAttributePresent("db.statement", spanAttributes) {
+				operation = "db.cassandra.query"
+			}
+
+			spanCall := fmt.Sprintf("%s.%s", instrumentation, operation)
+			sspan.Call = spanCall
+
+			sspan.Props["CATEGORY"] = "Cassandra"
+			sspan.Props["SUBCATEGORY"] = subcategory
+			SetSpanPropsIfAvailable(&sspan, "SQL", spanAttributes, "db.statement", "")
+			SetSpanPropsIfAvailable(&sspan, "ROW_COUNT", spanAttributes, "db.cassandra.rows.returned", "")
+		}
 	}
 
 	return sspan
@@ -132,6 +161,10 @@ func IsTemplateSpan(spanAttributes map[string]string) bool {
 
 func IsMemcachedSpan(spanAttributes map[string]string) bool {
 	return isAttributePresent("db.operation", spanAttributes) && isAttributeValueEqualTo("db.system", spanAttributes, "memcached")
+}
+
+func IsCasandraSpan(spanAttributes map[string]string) bool {
+	return (isAttributePresent("db.operation", spanAttributes) || isAttributePresent("db.statement", spanAttributes)) && isAttributeValueEqualTo("db.system", spanAttributes, "cassandra")
 }
 
 func isAttributePresent(attrName string, spanAttributes map[string]string) bool {

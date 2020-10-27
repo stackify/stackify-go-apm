@@ -208,5 +208,8 @@ func (ssp *StackifySpanProcessor) isTraceExportable(trace_id trace.ID) bool {
 // isSpanValid method checks if span is a valid stackify span.
 func (ssp *StackifySpanProcessor) isSpanValid(sd *export.SpanData) bool {
 	_, ok := validSpan[sd.Name]
+	if !ok {
+		ok = sd.InstrumentationLibrary.Name == span.Otelgocql
+	}
 	return ok || sd.ParentSpanID == span.InvalidSpanId
 }
