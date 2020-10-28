@@ -39,6 +39,9 @@ var (
 		"replace":    true,
 		"set":        true,
 		"touch":      true,
+
+		//MongoDB
+		"mongodb.query": true,
 	}
 )
 

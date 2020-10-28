@@ -1,6 +1,7 @@
 package span
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -137,6 +138,26 @@ func NewSpan(c *config.Config, sd *export.SpanData) StackifySpan {
 			SetSpanPropsIfAvailable(&sspan, "SQL", spanAttributes, "db.statement", "")
 			SetSpanPropsIfAvailable(&sspan, "ROW_COUNT", spanAttributes, "db.cassandra.rows.returned", "")
 		}
+
+		if IsMongoDBSpan(spanAttributes) {
+			sspan.Call = "db.mongodb.query"
+			sspan.Props["CATEGORY"] = "MongoDB"
+			sspan.Props["SUBCATEGORY"] = "Execute"
+			sspan.Props["COMPONENT_CATEGORY"] = "DB Query"
+			sspan.Props["COMPONENT_DETAIL"] = "Execute SQL Query"
+			SetSpanPropsIfAvailable(&sspan, "PROVIDER", spanAttributes, "db.system", "")
+			SetSpanPropsIfAvailable(&sspan, "MONGODB_COLLECTION", spanAttributes, "db.instance", "")
+			SetSpanPropsIfAvailable(&sspan, "OPERATION", spanAttributes, "db.operation", "")
+
+			if isAttributePresent("db.statement", spanAttributes) {
+				database := spanAttributes["db.instance"]
+				statement := []byte(spanAttributes["db.statement"])
+				var raw map[string]interface{}
+				json.Unmarshal(statement, &raw)
+				collection := raw["insert"]
+				sspan.Props["MONGODB_COLLECTION"] = fmt.Sprintf("%s.%s", database, collection)
+			}
+		}
 	}
 
 	return sspan
@@ -165,6 +186,10 @@ func IsMemcachedSpan(spanAttributes map[string]string) bool {
 
 func IsCasandraSpan(spanAttributes map[string]string) bool {
 	return (isAttributePresent("db.operation", spanAttributes) || isAttributePresent("db.statement", spanAttributes)) && isAttributeValueEqualTo("db.system", spanAttributes, "cassandra")
+}
+
+func IsMongoDBSpan(spanAttributes map[string]string) bool {
+	return (isAttributePresent("db.operation", spanAttributes) || isAttributePresent("db.statement", spanAttributes)) && isAttributeValueEqualTo("db.system", spanAttributes, "mongodb")
 }
 
 func isAttributePresent(attrName string, spanAttributes map[string]string) bool {
