@@ -15,6 +15,7 @@ const (
 	Otelhttp     = "go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	Otelmemcache = "go.opentelemetry.io/contrib/instrumentation/github.com/bradfitz/gomemcache/memcache/otelmemcache"
 	Otelgocql    = "go.opentelemetry.io/contrib/instrumentation/github.com/gocql/gocql/otelgocql"
+	Otelgrpc     = "go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 )
 
 var (
@@ -81,6 +82,7 @@ func NewSpan(c *config.Config, sd *export.SpanData) StackifySpan {
 		sspan.Props["APPLICATION_ENV"] = c.EnvironmentName
 		SetSpanPropsIfAvailable(&sspan, "REPORTING_URL", spanAttributes, "http.target", sspan.Call)
 		SetSpanPropsIfAvailable(&sspan, "METHOD", spanAttributes, "http.method", "")
+		SetSpanPropsIfAvailable(&sspan, "METHOD", spanAttributes, "rpc.method", "")
 		SetSpanPropsIfAvailable(&sspan, "STATUS", spanAttributes, "http.status_code", "")
 		SetSpanPropsIfAvailable(&sspan, "URL", spanAttributes, "http.url", "")
 	} else {
@@ -158,6 +160,14 @@ func NewSpan(c *config.Config, sd *export.SpanData) StackifySpan {
 				sspan.Props["MONGODB_COLLECTION"] = fmt.Sprintf("%s.%s", database, collection)
 			}
 		}
+
+		if IsGRPCSpan(spanAttributes) {
+			sspan.Props["CATEGORY"] = "RPC"
+			sspan.Props["SUBCATEGORY"] = "Execute"
+			SetSpanPropsIfAvailable(&sspan, "PROVIDER", spanAttributes, "rpc.system", "")
+			SetSpanPropsIfAvailable(&sspan, "SERVICE", spanAttributes, "rpc.service", "")
+			SetSpanPropsIfAvailable(&sspan, "METHOD", spanAttributes, "rpc.method", "")
+		}
 	}
 
 	return sspan
@@ -190,6 +200,10 @@ func IsCasandraSpan(spanAttributes map[string]string) bool {
 
 func IsMongoDBSpan(spanAttributes map[string]string) bool {
 	return (isAttributePresent("db.operation", spanAttributes) || isAttributePresent("db.statement", spanAttributes)) && isAttributeValueEqualTo("db.system", spanAttributes, "mongodb")
+}
+
+func IsGRPCSpan(spanAttributes map[string]string) bool {
+	return isAttributeValueEqualTo("rpc.system", spanAttributes, "grpc")
 }
 
 func isAttributePresent(attrName string, spanAttributes map[string]string) bool {

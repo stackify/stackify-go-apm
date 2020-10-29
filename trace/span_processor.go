@@ -212,7 +212,7 @@ func (ssp *StackifySpanProcessor) isTraceExportable(trace_id trace.ID) bool {
 func (ssp *StackifySpanProcessor) isSpanValid(sd *export.SpanData) bool {
 	_, ok := validSpan[sd.Name]
 	if !ok {
-		ok = sd.InstrumentationLibrary.Name == span.Otelgocql
+		ok = sd.InstrumentationLibrary.Name == span.Otelgocql || sd.InstrumentationLibrary.Name == span.Otelgrpc
 	}
 	return ok || sd.ParentSpanID == span.InvalidSpanId
 }
