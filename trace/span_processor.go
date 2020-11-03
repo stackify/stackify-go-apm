@@ -14,12 +14,34 @@ import (
 
 var (
 	invalidTraceID trace.ID
-	validHTTPSpan  = map[string]bool{
+	validSpan      = map[string]bool{
+		// HTML
 		"GET":    true,
 		"POST":   true,
 		"PUT":    true,
 		"DELETE": true,
 		"PATCH":  true,
+
+		// Template
+		"gin.renderer.html":     true,
+		"beego.render.template": true,
+
+		// Memcache
+		"add":        true,
+		"cas":        true,
+		"decr":       true,
+		"delete":     true,
+		"delete_all": true,
+		"flush_all":  true,
+		"get":        true,
+		"incr":       true,
+		"ping":       true,
+		"replace":    true,
+		"set":        true,
+		"touch":      true,
+
+		//MongoDB
+		"mongodb.query": true,
 	}
 )
 
@@ -186,7 +208,11 @@ func (ssp *StackifySpanProcessor) isTraceExportable(trace_id trace.ID) bool {
 	return ssp.traces_started_count[trace_id]-ssp.traces_ended_count[trace_id] <= 0
 }
 
+// isSpanValid method checks if span is a valid stackify span.
 func (ssp *StackifySpanProcessor) isSpanValid(sd *export.SpanData) bool {
-	_, ok := validHTTPSpan[sd.Name]
+	_, ok := validSpan[sd.Name]
+	if !ok {
+		ok = sd.InstrumentationLibrary.Name == span.Otelgocql || sd.InstrumentationLibrary.Name == span.Otelgrpc
+	}
 	return ok || sd.ParentSpanID == span.InvalidSpanId
 }

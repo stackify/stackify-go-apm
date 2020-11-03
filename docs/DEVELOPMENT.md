@@ -1,4 +1,4 @@
-# Go APM Development Guide 
+# Go APM Development Guide
 
 ## Development Setup
 
@@ -13,12 +13,14 @@
 
 
 ## Run Test
-    TODO: create test files
-    TODO: create script for running example files
+    `$ ./tests.sh`
 
 ## Build
-    TODO: create script for building go module
-    
+    ```
+    $ go mod tidy
+    ```
+
 ## Publish
-    TODO: create script for pushing branch and tag to the repo
- 
+    - merge develop to master
+    - create tag from master branch
+    - push tag to github repo

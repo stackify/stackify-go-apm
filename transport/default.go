@@ -104,10 +104,8 @@ type defaultTransport struct {
 }
 
 func (dt *defaultTransport) HandleTrace(stackifySpan *span.StackifySpan) {
-	fmt.Println(">>>>> Logging trace: ", stackifySpan.Id)
 	stackifySpanJSON, _ := json.Marshal(stackifySpan)
 	dt.println(string(stackifySpanJSON))
-	// fmt.Println(string(stackifySpanJSON))
 }
 
 func (dt *defaultTransport) SendAll() {

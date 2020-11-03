@@ -2,7 +2,6 @@ package apm // import "go.stackify.com/apm"
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"go.stackify.com/apm/config"
@@ -18,7 +17,7 @@ type StackifyAPM struct {
 	transport     *transport.Transport
 	spanExporter  *trace.StackifySpanExporter
 	spanProcessor *trace.StackifySpanProcessor
-	traceProvider *sdktrace.TracerProvider
+	TraceProvider *sdktrace.TracerProvider
 	Tracer        trace.Tracer
 	Context       context.Context
 }
@@ -29,8 +28,6 @@ func (sapm *StackifyAPM) Shutdown() {
 }
 
 func NewStackifyAPM(opts ...config.ConfigOptions) (*StackifyAPM, error) {
-	fmt.Println("APM Starting...")
-
 	// initialize Config
 	c := config.NewConfig(opts...)
 
@@ -59,11 +56,10 @@ func NewStackifyAPM(opts ...config.ConfigOptions) (*StackifyAPM, error) {
 		transport:     &t,
 		spanExporter:  sse,
 		spanProcessor: ssp,
-		traceProvider: tp,
+		TraceProvider: tp,
 		Tracer:        tracer,
 		Context:       ctx,
 	}
 
-	fmt.Println("APM Started...")
 	return &stackifyAPM, nil
 }
