@@ -2,7 +2,6 @@ package apm // import "go.stackify.com/apm"
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"go.stackify.com/apm/config"
@@ -29,8 +28,6 @@ func (sapm *StackifyAPM) Shutdown() {
 }
 
 func NewStackifyAPM(opts ...config.ConfigOptions) (*StackifyAPM, error) {
-	fmt.Println("APM Starting...")
-
 	// initialize Config
 	c := config.NewConfig(opts...)
 
@@ -64,6 +61,5 @@ func NewStackifyAPM(opts ...config.ConfigOptions) (*StackifyAPM, error) {
 		Context:       ctx,
 	}
 
-	fmt.Println("APM Started...")
 	return &stackifyAPM, nil
 }
