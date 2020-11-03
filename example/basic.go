@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"log"
 
-	"go.stackify.com/apm"
-	"go.stackify.com/apm/config"
-	"go.stackify.com/apm/trace"
+	apm "github.com/stackify/stackify-go-apm"
+	"github.com/stackify/stackify-go-apm/config"
+	"github.com/stackify/stackify-go-apm/trace"
 )
 
 var (

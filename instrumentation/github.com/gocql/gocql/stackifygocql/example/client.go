@@ -7,9 +7,10 @@ import (
 	"time"
 
 	"github.com/gocql/gocql"
-	"go.stackify.com/apm"
-	"go.stackify.com/apm/config"
-	"go.stackify.com/apm/instrumentation/github.com/gocql/gocql/stackifygocql"
+
+	apm "github.com/stackify/stackify-go-apm"
+	"github.com/stackify/stackify-go-apm/config"
+	"github.com/stackify/stackify-go-apm/instrumentation/github.com/gocql/gocql/stackifygocql"
 )
 
 const keyspace = "sample"

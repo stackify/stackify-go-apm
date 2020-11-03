@@ -9,10 +9,10 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 
-	"go.stackify.com/apm"
-	"go.stackify.com/apm/config"
-	"go.stackify.com/apm/instrumentation/google.golang.org/grpc/stackifygrpc"
-	"go.stackify.com/apm/instrumentation/google.golang.org/grpc/stackifygrpc/example/proto"
+	apm "github.com/stackify/stackify-go-apm"
+	"github.com/stackify/stackify-go-apm/config"
+	"github.com/stackify/stackify-go-apm/instrumentation/google.golang.org/grpc/stackifygrpc"
+	"github.com/stackify/stackify-go-apm/instrumentation/google.golang.org/grpc/stackifygrpc/example/proto"
 )
 
 func initStackifyTrace() (*apm.StackifyAPM, error) {

@@ -8,8 +8,8 @@ import (
 	"sync"
 	"time"
 
-	"go.stackify.com/apm/config"
-	"go.stackify.com/apm/trace/span"
+	"github.com/stackify/stackify-go-apm/config"
+	"github.com/stackify/stackify-go-apm/trace/span"
 )
 
 const (

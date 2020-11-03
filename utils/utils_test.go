@@ -7,7 +7,7 @@ import (
 	"go.opentelemetry.io/otel/api/trace"
 	apitrace "go.opentelemetry.io/otel/api/trace"
 
-	"go.stackify.com/apm/utils"
+	"github.com/stackify/stackify-go-apm/utils"
 )
 
 func TestTimeToTimestamp(t *testing.T) {

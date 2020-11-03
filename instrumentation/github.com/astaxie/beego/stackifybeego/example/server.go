@@ -5,9 +5,9 @@ import (
 
 	"github.com/astaxie/beego"
 
-	"go.stackify.com/apm"
-	"go.stackify.com/apm/config"
-	"go.stackify.com/apm/instrumentation/github.com/astaxie/beego/stackifybeego"
+	apm "github.com/stackify/stackify-go-apm"
+	"github.com/stackify/stackify-go-apm/config"
+	"github.com/stackify/stackify-go-apm/instrumentation/github.com/astaxie/beego/stackifybeego"
 )
 
 func initStackifyTrace() (*apm.StackifyAPM, error) {

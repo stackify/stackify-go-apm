@@ -8,9 +8,9 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
-	"go.stackify.com/apm"
-	"go.stackify.com/apm/config"
-	"go.stackify.com/apm/instrumentation/go.mongodb.org/mongo-driver/mongo/stackifymongo"
+	apm "github.com/stackify/stackify-go-apm"
+	"github.com/stackify/stackify-go-apm/config"
+	"github.com/stackify/stackify-go-apm/instrumentation/go.mongodb.org/mongo-driver/mongo/stackifymongo"
 )
 
 func initStackifyTrace() (*apm.StackifyAPM, error) {
