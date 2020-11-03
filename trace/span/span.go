@@ -68,7 +68,7 @@ func NewSpan(c *config.Config, sd *export.SpanData) StackifySpan {
 
 		sspan.Props["PROFILER_VERSION"] = "prototype"
 		sspan.Props["CATEGORY"] = "Go"
-		sspan.Props["TRACE_ID"] = utils.TranceIdToUUID(sd.SpanContext.TraceID[:])
+		sspan.Props["TRACE_ID"] = utils.TraceIdToUUID(sd.SpanContext.TraceID[:])
 		sspan.Props["TRACE_SOURCE"] = "GO"
 		sspan.Props["TRACE_TARGET"] = "RETRACE"
 		sspan.Props["TRACE_VERSION"] = "2.0"

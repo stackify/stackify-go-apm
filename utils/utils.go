@@ -13,7 +13,7 @@ func TimeToTimestamp(t time.Time) string {
 	return fmt.Sprintf("%.4f", float64(t.UnixNano())/1e9*1000)
 }
 
-func TranceIdToUUID(s []byte) string {
+func TraceIdToUUID(s []byte) string {
 	value, _ := uuid.FromBytes(s)
 	return value.String()
 }
