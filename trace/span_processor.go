@@ -27,7 +27,7 @@ var (
 		"gin.renderer.html":     true,
 		"beego.render.template": true,
 
-		// Memcache
+		// Memcache/Redis
 		"add":        true,
 		"cas":        true,
 		"decr":       true,
