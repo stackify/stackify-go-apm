@@ -34,19 +34,25 @@ var (
 			"Default": "/usr/local/stackify/stackify-python-apm/log/",
 			"Type":    "string",
 		},
+		"LogFileThresholdSize": map[string]string{
+			"Env":     "STACKIFY_TRANSPORT_LOG_THRESHOLD_SIZE",
+			"Default": strconv.FormatInt(DefaultLogFileThresholdSize, 10),
+			"Type":    "int64",
+		},
 	}
 )
 
 type Config struct {
-	ApplicationName string
-	EnvironmentName string
-	Debug           bool
-	BaseDIR         string
-	HostName        string
-	OSType          string
-	ProcessID       string
-	TransportType   string
-	LogPath         string
+	ApplicationName      string
+	EnvironmentName      string
+	Debug                bool
+	BaseDIR              string
+	HostName             string
+	OSType               string
+	ProcessID            string
+	TransportType        string
+	LogPath              string
+	LogFileThresholdSize int64
 }
 
 func (c *Config) setConfigEnvironmentOrDefault() {
@@ -64,6 +70,9 @@ func (c *Config) setConfigEnvironmentOrDefault() {
 		} else if v["Type"] == "bool" {
 			val, _ := strconv.ParseBool(tempVal)
 			reflect.ValueOf(c).Elem().FieldByName(k).SetBool(val)
+		} else if v["Type"] == "int64" {
+			val, _ := strconv.ParseInt(tempVal, 10, 64)
+			reflect.ValueOf(c).Elem().FieldByName(k).SetInt(val)
 		}
 	}
 }
@@ -138,4 +147,14 @@ func (l logPath) Apply(config *Config) {
 
 func WithLogPath(l string) ConfigOptions {
 	return logPath(l)
+}
+
+type logFileThresholdSize int64
+
+func (l logFileThresholdSize) Apply(config *Config) {
+	config.LogFileThresholdSize = int64(l)
+}
+
+func WithLogFileThresholdSize(l int64) ConfigOptions {
+	return logFileThresholdSize(l)
 }
