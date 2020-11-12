@@ -134,7 +134,7 @@ func NewSpan(c *config.Config, sd *export.SpanData) StackifySpan {
 				operation = "db.cassandra.query"
 			}
 
-			spanCall := fmt.Sprintf("%s.%s", instrumentation, operation)
+			spanCall := operation
 			sspan.Call = spanCall
 
 			sspan.Props["CATEGORY"] = "Cassandra"

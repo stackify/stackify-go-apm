@@ -12,6 +12,7 @@ require (
 	github.com/google/uuid v1.1.2
 	github.com/gorilla/mux v1.8.0
 	github.com/labstack/echo/v4 v4.1.17
+	github.com/stretchr/testify v1.6.1
 	go.mongodb.org/mongo-driver v1.4.2
 	go.opentelemetry.io/contrib/instrumentation/github.com/astaxie/beego/otelbeego v0.13.0
 	go.opentelemetry.io/contrib/instrumentation/github.com/bradfitz/gomemcache/memcache/otelmemcache v0.13.0
