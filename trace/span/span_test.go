@@ -268,3 +268,24 @@ func TestGRPCSpan(t *testing.T) {
 	assert.Equal(t, stackifySpan.Props["SERVICE"], "service")
 	assert.Equal(t, stackifySpan.Props["METHOD"], "method")
 }
+
+func TestRedisSpan(t *testing.T) {
+	c := createConfig()
+	attributes := []label.KeyValue{
+		label.String("db.system", "redis"),
+		label.String("redis.cmd", "set foo bar"),
+	}
+	sd := createOtelSpanData(c, "redis", trace.SpanKindClient, ChildSpan, attributes, InsLibTest)
+
+	stackifySpan := span.NewSpan(c, sd)
+
+	assert.Equal(t, stackifySpan.Call, "cache.redis")
+	assert.NotEmpty(t, stackifySpan.ReqBegin)
+	assert.NotEmpty(t, stackifySpan.ReqEnd)
+	assert.Equal(t, stackifySpan.Props["CATEGORY"], "Cache")
+	assert.Equal(t, stackifySpan.Props["SUBCATEGORY"], "Execute")
+	assert.Equal(t, stackifySpan.Props["COMPONENT_CATEGORY"], "Cache")
+	assert.Equal(t, stackifySpan.Props["COMPONENT_DETAIL"], "Execute")
+	assert.Equal(t, stackifySpan.Props["OPERATION"], "set")
+	assert.Equal(t, stackifySpan.Props["CACHEKEY"], "foo")
+}
