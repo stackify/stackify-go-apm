@@ -6,9 +6,9 @@ import (
 
 	"gopkg.in/macaron.v1"
 
-	"go.stackify.com/apm"
-	"go.stackify.com/apm/config"
-	"go.stackify.com/apm/instrumentation/gopkg.in/macaron.v1/stackifymacaron"
+	apm "github.com/stackify/stackify-go-apm"
+	"github.com/stackify/stackify-go-apm/config"
+	"github.com/stackify/stackify-go-apm/instrumentation/gopkg.in/macaron.v1/stackifymacaron"
 )
 
 func initStackifyTrace() (*apm.StackifyAPM, error) {

@@ -9,7 +9,8 @@ import (
 	"go.opentelemetry.io/otel/api/global"
 	"go.opentelemetry.io/otel/api/trace"
 	export "go.opentelemetry.io/otel/sdk/export/trace"
-	"go.stackify.com/apm/trace/span"
+
+	"github.com/stackify/stackify-go-apm/trace/span"
 )
 
 var (

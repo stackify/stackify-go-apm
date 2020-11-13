@@ -1,12 +1,12 @@
-package apm // import "go.stackify.com/apm"
+package apm
 
 import (
 	"context"
 	"time"
 
-	"go.stackify.com/apm/config"
-	"go.stackify.com/apm/trace"
-	"go.stackify.com/apm/transport"
+	"github.com/stackify/stackify-go-apm/config"
+	"github.com/stackify/stackify-go-apm/trace"
+	"github.com/stackify/stackify-go-apm/transport"
 
 	"go.opentelemetry.io/otel/api/global"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"

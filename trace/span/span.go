@@ -7,8 +7,9 @@ import (
 
 	apitrace "go.opentelemetry.io/otel/api/trace"
 	export "go.opentelemetry.io/otel/sdk/export/trace"
-	"go.stackify.com/apm/config"
-	"go.stackify.com/apm/utils"
+
+	"github.com/stackify/stackify-go-apm/config"
+	"github.com/stackify/stackify-go-apm/utils"
 )
 
 const (

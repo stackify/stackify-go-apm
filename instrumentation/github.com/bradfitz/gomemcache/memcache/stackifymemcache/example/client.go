@@ -6,9 +6,9 @@ import (
 
 	"github.com/bradfitz/gomemcache/memcache"
 
-	"go.stackify.com/apm"
-	"go.stackify.com/apm/config"
-	"go.stackify.com/apm/instrumentation/github.com/bradfitz/gomemcache/memcache/stackifymemcache"
+	apm "github.com/stackify/stackify-go-apm"
+	"github.com/stackify/stackify-go-apm/config"
+	"github.com/stackify/stackify-go-apm/instrumentation/github.com/bradfitz/gomemcache/memcache/stackifymemcache"
 )
 
 func initStackifyTrace() (*apm.StackifyAPM, error) {

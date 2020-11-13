@@ -7,9 +7,9 @@ import (
 
 	"github.com/gorilla/mux"
 
-	"go.stackify.com/apm"
-	"go.stackify.com/apm/config"
-	"go.stackify.com/apm/instrumentation/github.com/gorilla/mux/stackifymux"
+	apm "github.com/stackify/stackify-go-apm"
+	"github.com/stackify/stackify-go-apm/config"
+	"github.com/stackify/stackify-go-apm/instrumentation/github.com/gorilla/mux/stackifymux"
 )
 
 func initStackifyTrace() (*apm.StackifyAPM, error) {

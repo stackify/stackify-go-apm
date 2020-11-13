@@ -7,9 +7,9 @@ import (
 
 	"github.com/emicklei/go-restful/v3"
 
-	"go.stackify.com/apm"
-	"go.stackify.com/apm/config"
-	"go.stackify.com/apm/instrumentation/github.com/emicklei/go-restful/stackifyrestful"
+	apm "github.com/stackify/stackify-go-apm"
+	"github.com/stackify/stackify-go-apm/config"
+	"github.com/stackify/stackify-go-apm/instrumentation/github.com/emicklei/go-restful/stackifyrestful"
 )
 
 func initStackifyTrace() (*apm.StackifyAPM, error) {

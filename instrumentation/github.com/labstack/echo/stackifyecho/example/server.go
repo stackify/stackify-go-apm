@@ -6,9 +6,10 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
-	"go.stackify.com/apm"
-	"go.stackify.com/apm/config"
-	"go.stackify.com/apm/instrumentation/github.com/labstack/echo/stackifyecho"
+
+	apm "github.com/stackify/stackify-go-apm"
+	"github.com/stackify/stackify-go-apm/config"
+	"github.com/stackify/stackify-go-apm/instrumentation/github.com/labstack/echo/stackifyecho"
 )
 
 func initStackifyTrace() (*apm.StackifyAPM, error) {
