@@ -17,6 +17,7 @@ const (
 	Otelmemcache = "go.opentelemetry.io/contrib/instrumentation/github.com/bradfitz/gomemcache/memcache/otelmemcache"
 	Otelgocql    = "go.opentelemetry.io/contrib/instrumentation/github.com/gocql/gocql/otelgocql"
 	Otelgrpc     = "go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+	Redis        = "github.com/go-redis/redis"
 )
 
 var (
@@ -169,6 +170,22 @@ func NewSpan(c *config.Config, sd *export.SpanData) StackifySpan {
 			SetSpanPropsIfAvailable(&sspan, "SERVICE", spanAttributes, "rpc.service", "")
 			SetSpanPropsIfAvailable(&sspan, "METHOD", spanAttributes, "rpc.method", "")
 		}
+
+		if IsRedisSpan(spanAttributes) {
+			sspan.Call = "cache.redis"
+			sspan.Props["CATEGORY"] = "Cache"
+			sspan.Props["SUBCATEGORY"] = "Execute"
+			sspan.Props["COMPONENT_CATEGORY"] = "Cache"
+			sspan.Props["COMPONENT_DETAIL"] = "Execute"
+			cmd, ok := spanAttributes["redis.cmd"]
+			if ok {
+				cmds := strings.Split(cmd, " ")
+				sspan.Props["OPERATION"] = cmds[0]
+				if len(cmds) > 1 {
+					sspan.Props["CACHEKEY"] = cmds[1]
+				}
+			}
+		}
 	}
 
 	return sspan
@@ -205,6 +222,10 @@ func IsMongoDBSpan(spanAttributes map[string]string) bool {
 
 func IsGRPCSpan(spanAttributes map[string]string) bool {
 	return isAttributeValueEqualTo("rpc.system", spanAttributes, "grpc")
+}
+
+func IsRedisSpan(spanAttributes map[string]string) bool {
+	return isAttributeValueEqualTo("db.system", spanAttributes, "redis")
 }
 
 func isAttributePresent(attrName string, spanAttributes map[string]string) bool {
