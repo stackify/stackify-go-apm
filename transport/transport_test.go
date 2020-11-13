@@ -14,7 +14,10 @@ import (
 )
 
 func TestNewTransportWithDefaultConfig(t *testing.T) {
-	c := new(config.Config)
+	c := config.NewConfig(config.WithTransportType("default"))
+	c.LogPath = "/usr/local/stackify/stackify-python-apm/log/"
+	c.ProcessID = "ProcessID"
+	c.HostName = "HostName"
 
 	transport := transport.NewTransport(c)
 	ttype := reflect.TypeOf(transport)
