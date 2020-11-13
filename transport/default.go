@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
+	"sort"
 	"sync"
 	"time"
 
@@ -16,6 +18,29 @@ const (
 	defaultThreshold int64 = 50000000
 	loggerPrefixSize int64 = 30
 )
+
+type File struct {
+	Path string
+	os.FileInfo
+}
+
+type Files []*File
+
+func (a Files) Swap(i, j int) {
+	a[i], a[j] = a[j], a[i]
+}
+
+func (a Files) Len() int {
+	return len(a)
+}
+
+type ByMtime struct {
+	Files
+}
+
+func (a ByMtime) Less(i, j int) bool {
+	return a.Files[i].ModTime().After(a.Files[j].ModTime())
+}
 
 type stackifyIncrementalLogger struct {
 	fileNameFormat  string
@@ -35,7 +60,6 @@ func (sil *stackifyIncrementalLogger) createFileOrRollOver(increment bool) {
 	defer sil.mutex.RLock()
 
 	if sil.file != nil {
-		fmt.Println(">>> Closing file: ", sil.getFileName())
 		sil.file.Close()
 	}
 
@@ -44,16 +68,46 @@ func (sil *stackifyIncrementalLogger) createFileOrRollOver(increment bool) {
 	}
 	fileName := sil.getFileName()
 
-	fmt.Println(">>> Creating log file: ", fileName)
 	var err error = nil
 	sil.file, err = os.Create(fileName)
 	if err != nil {
-		fmt.Println(">>> Error creating file: "+fileName+". Err: ", err)
 		return
 	}
 
 	os.Chmod(fileName, os.ModePerm)
+	sil.deleteOldLogFiles()
 	sil.log = log.New(sil.file, "", log.LUTC)
+}
+
+func (sil *stackifyIncrementalLogger) deleteOldLogFiles() {
+	files := sil.getLogFiles()
+	if len(files) > config.MaxLogFilesCount {
+		filesToDelete := files[config.MaxLogFilesCount:]
+		for _, f := range filesToDelete {
+			os.Remove(f.Path)
+		}
+	}
+}
+
+func (sil *stackifyIncrementalLogger) getLogFiles() Files {
+	var logFiles Files
+
+	dir, err := filepath.Abs(filepath.Dir(sil.getFileName()))
+	if err != nil {
+		return logFiles
+	}
+
+	err = filepath.Walk(dir, func(path string, fi os.FileInfo, _ error) error {
+		if err == nil && !fi.IsDir() && filepath.Ext(path) == ".log" {
+			logFiles = append(logFiles, &File{
+				Path:     path,
+				FileInfo: fi,
+			})
+		}
+		return nil
+	})
+	sort.Sort(ByMtime{logFiles})
+	return logFiles
 }
 
 func (sil *stackifyIncrementalLogger) println(ssjson string) {
@@ -61,12 +115,10 @@ func (sil *stackifyIncrementalLogger) println(ssjson string) {
 	defer sil.mutex.RUnlock()
 
 	if sil.file == nil {
-		fmt.Println(">>> Log file doesn't exist.")
 		return
 	}
 
 	if _, err := os.Stat(sil.getFileName()); os.IsNotExist(err) {
-		fmt.Println(">>> Log file " + sil.getFileName() + "doesn't exist or deleted")
 		sil.createFileOrRollOver(false)
 	}
 
@@ -119,7 +171,7 @@ func newDefaultTransport(c *config.Config) Transport {
 		config: c,
 		stackifyIncrementalLogger: newStackifyIncrementalLogger(
 			fileNameFormat,
-			defaultThreshold,
+			c.LogFileThresholdSize,
 		),
 	}
 }

@@ -1,5 +1,7 @@
 package config
 
 const (
-	DefaultTransportType string = "default"
+	DefaultLogFileThresholdSize int64  = 50000000
+	DefaultTransportType        string = "default"
+	MaxLogFilesCount            int    = 10
 )
