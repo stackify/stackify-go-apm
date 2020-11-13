@@ -47,7 +47,7 @@ var (
 )
 
 const (
-	DefaultTimeout = 500 * time.Millisecond
+	DefaultTimeout = 50 * time.Millisecond
 )
 
 type StackifySpanProcessor struct {
@@ -118,6 +118,7 @@ func (ssp *StackifySpanProcessor) Shutdown() {
 		ssp.enqueue(invalidTraceID)
 		ssp.stopWait.Wait()
 	})
+	ssp.e.Shutdown(context.Background())
 }
 
 // ForceFlush export remaining traces from queue.
