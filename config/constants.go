@@ -5,3 +5,9 @@ const (
 	DefaultTransportType        string = "default"
 	MaxLogFilesCount            int    = 10
 )
+
+var (
+	TransportTypes = map[string]bool{
+		DefaultTransportType: true,
+	}
+)

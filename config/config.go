@@ -136,6 +136,10 @@ func (tt transportType) Apply(config *Config) {
 }
 
 func WithTransportType(tt string) ConfigOptions {
+	_, ok := TransportTypes[tt]
+	if !ok {
+		return transportType(DefaultTransportType)
+	}
 	return transportType(tt)
 }
 
