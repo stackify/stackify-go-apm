@@ -45,7 +45,7 @@ func NewStackifyAPM(opts ...config.ConfigOptions) (*StackifyAPM, error) {
 
 	// set tracer provider as global tracer provider
 	global.SetTracerProvider(tp)
-	tracer := global.Tracer("stackifyapm_tracer")
+	tracer := global.Tracer(config.StackifyInstrumentationName)
 
 	// create context
 	ctx := context.Background()

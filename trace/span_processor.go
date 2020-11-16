@@ -10,12 +10,14 @@ import (
 	"go.opentelemetry.io/otel/api/trace"
 	export "go.opentelemetry.io/otel/sdk/export/trace"
 
+	"github.com/stackify/stackify-go-apm/config"
 	"github.com/stackify/stackify-go-apm/trace/span"
 )
 
 var (
 	invalidTraceID trace.ID
-	validSpan      = map[string]bool{
+	// TODO: find a better way of doing this
+	validSpan = map[string]bool{
 		// HTML
 		"GET":    true,
 		"POST":   true,
@@ -214,7 +216,9 @@ func (ssp *StackifySpanProcessor) isTraceExportable(trace_id trace.ID) bool {
 func (ssp *StackifySpanProcessor) isSpanValid(sd *export.SpanData) bool {
 	_, ok := validSpan[sd.Name]
 	if !ok {
-		ok = sd.InstrumentationLibrary.Name == span.Otelgocql || sd.InstrumentationLibrary.Name == span.Otelgrpc
+		ok = sd.InstrumentationLibrary.Name == span.Otelgocql ||
+			sd.InstrumentationLibrary.Name == span.Otelgrpc ||
+			sd.InstrumentationLibrary.Name == config.StackifyInstrumentationName
 	}
 	return ok || sd.ParentSpanID == span.InvalidSpanId
 }
