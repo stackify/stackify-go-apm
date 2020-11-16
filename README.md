@@ -14,7 +14,7 @@
 
         ```
         require (
-            go.stackify.com/apm vx.x.x
+            github.com/stackify/stackify-go-apm vx.x.x
             ...
         )
         ```
@@ -22,7 +22,7 @@
     - Install stackify go apm
 
         ```
-        $ go get go.stackify.com/apm
+        $ go get github.com/stackify/stackify-go-apm
         ```
 
 4. Update and insert the apm settings to your application.
@@ -34,7 +34,7 @@
         "context"
         "log"
 
-        "go.stackify.com/apm"
+        "github.com/stackify/stackify-go-apm"
     )
 
     func main() {

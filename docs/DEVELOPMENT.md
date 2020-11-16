@@ -5,6 +5,7 @@
 1. Install Go 1.15
 
 2. Clone Repository
+
     http: `git clone https://<user>@bitbucket.org/stackify/stackify-go-apm.git`
     ssh:  `git clone git@bitbucket.org:stackify/stackify-go-apm.git`
 
