@@ -2,7 +2,6 @@ package apm
 
 import (
 	"context"
-	"time"
 
 	"github.com/stackify/stackify-go-apm/config"
 	"github.com/stackify/stackify-go-apm/trace"
@@ -23,7 +22,6 @@ type StackifyAPM struct {
 }
 
 func (sapm *StackifyAPM) Shutdown() {
-	time.Sleep(1 * time.Second)
 	sapm.spanProcessor.Shutdown()
 }
 
