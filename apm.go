@@ -2,7 +2,6 @@ package apm
 
 import (
 	"context"
-	"time"
 
 	"github.com/stackify/stackify-go-apm/config"
 	"github.com/stackify/stackify-go-apm/trace"
@@ -23,7 +22,6 @@ type StackifyAPM struct {
 }
 
 func (sapm *StackifyAPM) Shutdown() {
-	time.Sleep(1 * time.Second)
 	sapm.spanProcessor.Shutdown()
 }
 
@@ -45,7 +43,7 @@ func NewStackifyAPM(opts ...config.ConfigOptions) (*StackifyAPM, error) {
 
 	// set tracer provider as global tracer provider
 	global.SetTracerProvider(tp)
-	tracer := global.Tracer("stackifyapm_tracer")
+	tracer := global.Tracer(config.StackifyInstrumentationName)
 
 	// create context
 	ctx := context.Background()
