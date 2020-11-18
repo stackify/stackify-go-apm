@@ -55,6 +55,7 @@ type Config struct {
 	LogFileThresholdSize int64
 }
 
+// Set Default Config Value or Environment Variable if available
 func (c *Config) setConfigEnvironmentOrDefault() {
 	var tempVal string
 	for k, v := range defaults {
@@ -77,6 +78,7 @@ func (c *Config) setConfigEnvironmentOrDefault() {
 	}
 }
 
+// Initialize and return config
 func NewConfig(opts ...ConfigOptions) *Config {
 	config := new(Config)
 	config.setConfigEnvironmentOrDefault()
@@ -95,6 +97,7 @@ func NewConfig(opts ...ConfigOptions) *Config {
 	return config
 }
 
+// ConfigOptions interface for configurable values
 type ConfigOptions interface {
 	Apply(*Config)
 }
