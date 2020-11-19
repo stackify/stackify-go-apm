@@ -38,12 +38,14 @@ func (ssp *StackifySpanExporter) toStackifyTrace(sd []*export.SpanData) (*span.S
 	stackifySpansMap := make(map[string]*span.StackifySpan)
 	stackifySpan := &span.StackifySpan{}
 
+	// map spans by span id for easy access
 	for _, s := range sd {
 		stackifySpan := span.NewSpan(ssp.c, s)
 		stackifySpans = append(stackifySpans, &stackifySpan)
 		stackifySpansMap[utils.SpanIdToString(s.SpanContext.SpanID[:])] = &stackifySpan
 	}
 
+	// arrange spans by adding child span into parent stacks attribute
 	for _, s := range stackifySpans {
 		if s.ParentId != s.Id && s.ParentId != utils.SpanIdToString(span.InvalidSpanId[:]) {
 			stackifySpansMap[s.ParentId].Stacks = append(stackifySpansMap[s.ParentId].Stacks, stackifySpansMap[s.Id])

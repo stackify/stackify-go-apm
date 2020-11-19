@@ -25,7 +25,9 @@ func (sapm *StackifyAPM) Shutdown() {
 	sapm.spanProcessor.Shutdown()
 }
 
+// NewStackifyAPM function creates and return stackifyAPM
 func NewStackifyAPM(opts ...config.ConfigOptions) (*StackifyAPM, error) {
+
 	// initialize Config
 	c := config.NewConfig(opts...)
 

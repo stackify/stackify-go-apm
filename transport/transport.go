@@ -10,6 +10,7 @@ type Transport interface {
 	SendAll()
 }
 
+// Initialize and return transport depending on the config data
 func NewTransport(c *config.Config) Transport {
 	if c.TransportType == config.DefaultTransportType {
 		return newDefaultTransport(c)

@@ -40,6 +40,7 @@ type StackifySpan struct {
 	// Exceptions
 }
 
+// Convert SpanData to Stackify Span
 func NewSpan(c *config.Config, sd *export.SpanData) StackifySpan {
 	var spanAttributes = map[string]string{}
 	for _, attribute := range sd.Attributes {
@@ -103,25 +104,19 @@ func NewSpan(c *config.Config, sd *export.SpanData) StackifySpan {
 			SetSpanPropsIfAvailable(&sspan, "METHOD", spanAttributes, "http.method", "")
 			SetSpanPropsIfAvailable(&sspan, "STATUS", spanAttributes, "http.status_code", "")
 			SetSpanPropsIfAvailable(&sspan, "URL", spanAttributes, "http.url", "")
-		}
-
-		if IsTemplateSpan(spanAttributes) {
+		} else if IsTemplateSpan(spanAttributes) {
 			sspan.Props["CATEGORY"] = "Template"
 			sspan.Props["SUBCATEGORY"] = "Render"
 			sspan.Props["COMPONENT_CATEGORY"] = "Template"
 			sspan.Props["COMPONENT_DETAIL"] = "Template"
-		}
-
-		if IsMemcachedSpan(spanAttributes) {
+		} else if IsMemcachedSpan(spanAttributes) {
 			sspan.Props["CATEGORY"] = "Cache"
 			sspan.Props["SUBCATEGORY"] = "Execute"
 			sspan.Props["COMPONENT_CATEGORY"] = "Cache"
 			sspan.Props["COMPONENT_DETAIL"] = "Execute"
 			SetSpanPropsIfAvailable(&sspan, "OPERATION", spanAttributes, "db.operation", "")
 			SetSpanPropsIfAvailable(&sspan, "CACHEKEY", spanAttributes, "db.memcached.item", "")
-		}
-
-		if IsCasandraSpan(spanAttributes) {
+		} else if IsCasandraSpan(spanAttributes) {
 			subcategory := "Execute"
 			if isAttributeValueEqualTo("db.operation", spanAttributes, "db.cassandra.connect") {
 				subcategory = "Connect"
@@ -141,9 +136,7 @@ func NewSpan(c *config.Config, sd *export.SpanData) StackifySpan {
 			sspan.Props["SUBCATEGORY"] = subcategory
 			SetSpanPropsIfAvailable(&sspan, "SQL", spanAttributes, "db.statement", "")
 			SetSpanPropsIfAvailable(&sspan, "ROW_COUNT", spanAttributes, "db.cassandra.rows.returned", "")
-		}
-
-		if IsMongoDBSpan(spanAttributes) {
+		} else if IsMongoDBSpan(spanAttributes) {
 			sspan.Call = "db.mongodb.query"
 			sspan.Props["CATEGORY"] = "MongoDB"
 			sspan.Props["SUBCATEGORY"] = "Execute"
@@ -161,17 +154,13 @@ func NewSpan(c *config.Config, sd *export.SpanData) StackifySpan {
 				collection := raw["insert"]
 				sspan.Props["MONGODB_COLLECTION"] = fmt.Sprintf("%s.%s", database, collection)
 			}
-		}
-
-		if IsGRPCSpan(spanAttributes) {
+		} else if IsGRPCSpan(spanAttributes) {
 			sspan.Props["CATEGORY"] = "RPC"
 			sspan.Props["SUBCATEGORY"] = "Execute"
 			SetSpanPropsIfAvailable(&sspan, "PROVIDER", spanAttributes, "rpc.system", "")
 			SetSpanPropsIfAvailable(&sspan, "SERVICE", spanAttributes, "rpc.service", "")
 			SetSpanPropsIfAvailable(&sspan, "METHOD", spanAttributes, "rpc.method", "")
-		}
-
-		if IsRedisSpan(spanAttributes) {
+		} else if IsRedisSpan(spanAttributes) {
 			sspan.Call = "cache.redis"
 			sspan.Props["CATEGORY"] = "Cache"
 			sspan.Props["SUBCATEGORY"] = "Execute"

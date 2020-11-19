@@ -51,10 +51,12 @@ type stackifyIncrementalLogger struct {
 	mutex           sync.RWMutex
 }
 
+// getFileName method returns a string of filename with the current counter value
 func (sil *stackifyIncrementalLogger) getFileName() string {
 	return fmt.Sprintf(sil.fileNameFormat, sil.fileNameCounter)
 }
 
+// createFileOrRollOver method creates new log file or roll over into a new log file
 func (sil *stackifyIncrementalLogger) createFileOrRollOver(increment bool) {
 	sil.mutex.RLock()
 	defer sil.mutex.RLock()
@@ -79,6 +81,7 @@ func (sil *stackifyIncrementalLogger) createFileOrRollOver(increment bool) {
 	sil.log = log.New(sil.file, "", log.LUTC)
 }
 
+// deleteOldLogFiles methods deletes old log files
 func (sil *stackifyIncrementalLogger) deleteOldLogFiles() {
 	files := sil.getLogFiles()
 	if len(files) > config.MaxLogFilesCount {
@@ -89,6 +92,7 @@ func (sil *stackifyIncrementalLogger) deleteOldLogFiles() {
 	}
 }
 
+// getLogFiles method returns list of log files within the logpath
 func (sil *stackifyIncrementalLogger) getLogFiles() Files {
 	var logFiles Files
 
@@ -110,6 +114,7 @@ func (sil *stackifyIncrementalLogger) getLogFiles() Files {
 	return logFiles
 }
 
+// println method logs the json string span
 func (sil *stackifyIncrementalLogger) println(ssjson string) {
 	sil.mutex.RLock()
 	defer sil.mutex.RUnlock()
@@ -129,12 +134,14 @@ func (sil *stackifyIncrementalLogger) println(ssjson string) {
 	sil.log.Println(ssjson)
 }
 
+// shouldRollOver methods checks if we should roll over
 func (sil *stackifyIncrementalLogger) shouldRollOver(ssjson string) bool {
 	fileStat, _ := sil.file.Stat()
 	fileSize := fileStat.Size()
 	return fileSize+int64(len(ssjson))+loggerPrefixSize > sil.threshold
 }
 
+// newStackifyIncrementalLogger function creates and initialize logger
 func newStackifyIncrementalLogger(fileNameFormat string, threshold int64) *stackifyIncrementalLogger {
 	stackifyIncrementalLogger := &stackifyIncrementalLogger{
 		fileNameFormat: fileNameFormat,
@@ -155,15 +162,18 @@ type defaultTransport struct {
 	mutex           sync.RWMutex
 }
 
+// HandleTrace method convert stackify span to json string and call log
 func (dt *defaultTransport) HandleTrace(stackifySpan *span.StackifySpan) {
 	stackifySpanJSON, _ := json.Marshal(stackifySpan)
 	dt.println(string(stackifySpanJSON))
 }
 
+// SendAll method ensures we send all span
 func (dt *defaultTransport) SendAll() {
 	// nothing to flush for default transport
 }
 
+// newDefaultTransport function initialize and return default transport
 func newDefaultTransport(c *config.Config) Transport {
 	fileNameFormat := fmt.Sprintf("%s%s#%s-", c.LogPath, c.HostName, c.ProcessID) + "%d.log"
 
